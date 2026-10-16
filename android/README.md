@@ -1,6 +1,7 @@
 # Coleta de Campo — aplicativo Android
 
-O mesmo `index.html` da coleta, empacotado num APK (WebView, funciona sem internet).
+O mesmo `index.html` da coleta, empacotado num APK (WebView, funciona sem internet). Versão atual: **1.1**
+(leitura das etiquetas QR). Para iPhone, veja [../ios/README.md](../ios/README.md).
 
 ## Instalar
 
@@ -19,6 +20,9 @@ Requer Android 7.0 (API 24) ou superior. O aplicativo pede a permissão de **Loc
 ## Uso no campo
 
 - **Hoje**: pendências do dia pelas frequências do plano de trabalho (chuva, kits, ocupação, pesagem, envio do mês).
+- **Ler etiqueta QR** (em Hoje e em Coletar): abre a câmera do celular; fotografe a etiqueta da colmeia ou do kit
+  e escolha a ficha, que já vem com a colônia (ou o kit) preenchida. As etiquetas estão em
+  [../etiquetas/](../etiquetas/README.md).
 - **Coletar**: as fichas F02 a F10. Em ocupação e pesagem, **Salvar e próxima colônia** percorre o meliponário.
 - **Colônias**: cadastro (F01) e **sorteio do controle** de cada grupo, antes da troca das melgueiras.
 - **Registros**: tudo o que foi salvo, para conferir ou corrigir.
@@ -37,7 +41,7 @@ Sem Gradle: `aapt2` (ou `aapt`) + `javac` + `d8` (ou `dx`) + `apksigner`.
 ```bash
 export JAVA_HOME="<JDK 11 ou superior>"
 export KEYSTORE="<caminho do .jks>" KSPASS="<senha>"
-VERSION_CODE=1 VERSION_NAME=1.0 bash android/build.sh    # saída: android/build/coleta-de-campo.apk
+VERSION_CODE=2 VERSION_NAME=1.1 bash android/build.sh    # saída: android/build/coleta-de-campo.apk
 ```
 
 Funciona no Git Bash do Windows com o SDK do Android Studio e no Linux (SDK oficial ou os pacotes `aapt`, `dalvik-exchange`, `zipalign`, `apksigner` e `android-sdk-platform-23` do Ubuntu). O código Java usa só a API 23, então compila com qualquer plataforma a partir dela.

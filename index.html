@@ -1,0 +1,1208 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<style>html,body{margin:0}body{font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Coleta de Campo</title>
+<style>
+:root{
+  color-scheme: light;
+  --ground:#EEF2EC; --surface:#FBFCFA; --surface-2:#F4F7F3; --sunken:#E7EDE8;
+  --ink:#15231C; --ink-2:#46564C; --muted:#67776D; --line:#D3DCD5; --line-2:#C2CDC4;
+  --brand:#2B654A; --brand-soft:#E1EDE5; --brand-ink:#1E5038;
+  --good:#2B654A; --good-soft:#E1EDE5;
+  --warn:#8A5406; --warn-soft:#F8EBD4;
+  --crit:#A62019; --crit-soft:#FAE4E2;
+  --idle:#67776D; --idle-soft:#E8EDE9;
+  --shadow:0 1px 2px rgba(21,35,28,.05),0 10px 26px -14px rgba(21,35,28,.22);
+  --fd:Georgia,"Times New Roman",serif;
+  --fb:system-ui,"Segoe UI",Roboto,sans-serif;
+  --fm:ui-monospace,"Cascadia Mono",Consolas,Menlo,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  color-scheme: dark;
+  --ground:#0B1410; --surface:#131F19; --surface-2:#182721; --sunken:#0E1A14;
+  --ink:#E6EDE8; --ink-2:#B6C4BB; --muted:#93A399; --line:#2B3B33; --line-2:#3A4D43;
+  --brand:#74BB93; --brand-soft:#1A3026; --brand-ink:#8ED0AA;
+  --good:#74BB93; --good-soft:#1A3026;
+  --warn:#E3A942; --warn-soft:#3A2A10;
+  --crit:#F08279; --crit-soft:#3E1A17;
+  --idle:#93A399; --idle-soft:#1D2A24;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 34px -16px rgba(0,0,0,.72);
+}}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --ground:#0B1410; --surface:#131F19; --surface-2:#182721; --sunken:#0E1A14;
+  --ink:#E6EDE8; --ink-2:#B6C4BB; --muted:#93A399; --line:#2B3B33; --line-2:#3A4D43;
+  --brand:#74BB93; --brand-soft:#1A3026; --brand-ink:#8ED0AA;
+  --good:#74BB93; --good-soft:#1A3026;
+  --warn:#E3A942; --warn-soft:#3A2A10;
+  --crit:#F08279; --crit-soft:#3E1A17;
+  --idle:#93A399; --idle-soft:#1D2A24;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 34px -16px rgba(0,0,0,.72);
+}
+
+*{box-sizing:border-box}
+html,body{background:var(--ground);color:var(--ink)}
+body{font-family:var(--fb);font-size:14px;line-height:1.5;margin:0;padding-inline:16px;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+h1,h2,h3,h4{font-family:var(--fd);margin:0;letter-spacing:-.012em;text-wrap:balance}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--brand-ink)}
+.mono{font-family:var(--fm);font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}
+
+.wrap{max-width:860px;margin:0 auto;padding-block:16px 72px}
+
+/* marca */
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-bottom:12px}
+.lock{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit}
+.lock svg{flex:none}
+.lock .wm{font-family:var(--fd);font-weight:800;font-size:19px;line-height:1;letter-spacing:-.02em}
+.lock .wm .sl{color:var(--brand);font-weight:600;margin:0 .06em}
+.lock .tag{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-top:3px}
+.top .spacer{flex:1}
+.clockbox{text-align:right;font-size:11.5px;color:var(--muted);line-height:1.35}
+.clockbox b{display:block;font-family:var(--fm);font-size:13px;color:var(--ink);font-weight:600}
+
+/* abas */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto;scrollbar-width:thin;
+  position:sticky;top:0;background:var(--ground);z-index:10}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 12px;margin-bottom:-1px;
+  font-weight:600;font-size:13.5px;color:var(--muted);cursor:pointer;white-space:nowrap;border-radius:6px 6px 0 0}
+.tabs button:hover{color:var(--ink);background:var(--surface-2)}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--brand)}
+.tabs .n{display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;border-radius:999px;background:var(--warn-soft);color:var(--warn);font-size:11px;text-align:center}
+
+/* blocos */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px}
+.sec{margin-bottom:24px}
+.sec>header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.sec>header h2{font-size:17px;font-weight:700}
+.sec>header .hint{font-size:12.5px;color:var(--muted)}
+.sec>header .spacer{flex:1}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:3px}
+.kpi .lab{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.kpi .val{font-family:var(--fd);font-weight:700;font-size:26px;line-height:1.05;font-variant-numeric:tabular-nums}
+.kpi .sub{font-size:11.8px;color:var(--muted)}
+.kpi.alert{border-color:color-mix(in srgb,var(--warn) 42%,transparent);background:var(--warn-soft)}
+.kpi.alert .val{color:var(--warn)}
+
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;padding:3px 9px 3px 7px;border-radius:999px;white-space:nowrap;line-height:1.35}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.pill.ok{color:var(--good);background:var(--good-soft)}
+.pill.warn{color:var(--warn);background:var(--warn-soft)}
+.pill.crit{color:var(--crit);background:var(--crit-soft)}
+.pill.idle{color:var(--idle);background:var(--idle-soft)}
+.pill.warn .dot{border-radius:1px;transform:rotate(45deg)}
+.pill.idle .dot{background:none;box-shadow:inset 0 0 0 1.5px currentColor}
+
+/* listas */
+.lista{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--line);
+  text-align:left;background:none;border-left:0;border-right:0;border-top:0;width:100%;font:inherit;cursor:pointer;color:inherit}
+.item:last-child{border-bottom:0}
+.item .t{font-weight:600;font-size:13.8px}
+.item .s{font-size:12.2px;color:var(--muted)}
+.item .r{font-family:var(--fm);font-size:11.5px;color:var(--muted);text-align:right}
+.empty{padding:24px 16px;text-align:center;border:1px dashed var(--line-2);border-radius:var(--r);color:var(--muted);font-size:13px}
+.empty b{display:block;color:var(--ink);font-family:var(--fd);font-size:15px;margin-bottom:4px}
+
+/* fichas */
+.fichas{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.ficha{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--brand);border-radius:var(--r);
+  padding:13px 15px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:3px;font:inherit;color:inherit}
+.ficha:hover{border-color:var(--line-2)}
+.ficha .cod{font-family:var(--fm);font-size:11px;color:var(--muted);font-weight:600}
+.ficha .nm{font-family:var(--fd);font-weight:700;font-size:15px}
+.ficha .q{font-size:12px;color:var(--muted)}
+
+/* formulários */
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:13px;align-items:end}
+.fld{display:flex;flex-direction:column;gap:5px}
+.fld.full{grid-column:1/-1}
+.fld label,.fld .lb{font-size:12px;font-weight:600;color:var(--ink-2)}
+.fld label .req{color:var(--crit)}
+.fld input,.fld select,.fld textarea{background:var(--surface);border:1px solid var(--line-2);border-radius:7px;padding:10px 11px;font-size:15px;width:100%;min-height:44px}
+.fld textarea{resize:vertical;min-height:70px;font-family:inherit}
+.fld .h{font-size:11.5px;color:var(--muted)}
+.fld.erro input,.fld.erro select{border-color:var(--crit)}
+.fld.erro .h{color:var(--crit)}
+.btn{background:var(--brand);color:var(--ground);border:0;border-radius:7px;padding:11px 16px;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;min-height:44px}
+.btn:hover{filter:brightness(1.07)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line-2)}
+.btn.sm{padding:6px 11px;font-size:12.4px;min-height:34px}
+.btn.danger{background:none;color:var(--crit);border:1px solid color-mix(in srgb,var(--crit) 40%,transparent)}
+.rowend{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.rowend .spacer{flex:1}
+
+.escala{display:grid;gap:6px}
+.escala button{display:grid;grid-template-columns:38px 1fr;gap:10px;align-items:center;text-align:left;background:var(--surface);
+  border:1px solid var(--line-2);border-radius:8px;padding:8px 10px;cursor:pointer;font:inherit;color:inherit;min-height:44px}
+.escala button b{font-family:var(--fd);font-size:20px;text-align:center}
+.escala button span{font-size:12.6px;color:var(--ink-2)}
+.escala button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--ground)}
+.escala button[aria-pressed="true"] span{color:var(--ground)}
+.escala.linha{grid-template-columns:repeat(auto-fit,minmax(52px,1fr))}
+.escala.linha button{grid-template-columns:1fr;text-align:center;padding:8px 4px}
+
+.sn{display:flex;gap:6px}
+.sn button{flex:1;background:var(--surface);border:1px solid var(--line-2);border-radius:8px;padding:9px;font-weight:600;cursor:pointer;min-height:44px}
+.sn button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--ground)}
+
+.chk{display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:start;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.4px}
+.chk input{width:22px;height:22px;margin:0;accent-color:var(--brand)}
+
+.widget{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.widget input{flex:1;min-width:90px}
+.cont{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:12px;display:none;flex-direction:column;gap:10px;align-items:stretch;margin-top:6px}
+.cont.on{display:flex}
+.cont .rel{font-family:var(--fm);font-size:30px;font-weight:700;text-align:center}
+.cont .tot{text-align:center;font-size:13px;color:var(--muted)}
+.cont .tot b{font-family:var(--fd);font-size:34px;color:var(--ink);display:block;line-height:1.1}
+.cont .mais{background:var(--brand);color:var(--ground);border:0;border-radius:12px;font-size:22px;font-weight:700;min-height:96px;cursor:pointer}
+
+.fotos{display:flex;gap:8px;flex-wrap:wrap}
+.fotos figure{margin:0;position:relative;width:84px}
+.fotos img{width:84px;height:84px;object-fit:cover;border-radius:7px;border:1px solid var(--line)}
+.fotos figcaption{font-size:10px;color:var(--muted);word-break:break-all;line-height:1.2}
+.fotos button{position:absolute;top:2px;right:2px;background:var(--crit);color:#fff;border:0;border-radius:50%;width:22px;height:22px;font-size:13px;line-height:22px;padding:0;cursor:pointer}
+
+.note{background:var(--brand-soft);border-left:3px solid var(--brand);border-radius:0 7px 7px 0;padding:11px 14px;font-size:12.8px;color:var(--ink)}
+.note b{color:var(--brand-ink)}
+.note.w{background:var(--warn-soft);border-left-color:var(--warn)}
+.note.w b{color:var(--warn)}
+
+.picker{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.picker button{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink-2)}
+.picker button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:9px 11px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface-2)}
+td{padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num{font-family:var(--fm);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.grupo{margin-bottom:16px}
+.grupo h3{font-size:14.5px;font-weight:700;margin-bottom:8px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.grupo h3 .s{font-family:var(--fb);font-size:12px;color:var(--muted);font-weight:500}
+
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(30px);background:var(--ink);color:var(--surface);
+  padding:11px 18px;border-radius:999px;font-weight:600;font-size:13.5px;opacity:0;transition:all .18s;z-index:50;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.modal{position:fixed;inset:0;background:rgba(10,20,15,.45);display:none;align-items:flex-end;justify-content:center;z-index:40;padding:12px}
+.modal.on{display:flex}
+.modal .card{width:100%;max-width:560px;max-height:88vh;overflow:auto;box-shadow:var(--shadow)}
+.sorteado{font-family:var(--fd);font-size:30px;font-weight:800;text-align:center;padding:14px 0;color:var(--brand)}
+
+.foot-note{margin-top:28px;padding-top:12px;border-top:1px solid var(--line);font-size:11.8px;color:var(--muted);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="lock">
+    <svg width="34" height="38" viewBox="0 0 34 38" aria-hidden="true">
+      <path d="M17 1.6 32 10.3v17.4L17 36.4 2 27.7V10.3Z" fill="none" stroke="var(--brand)" stroke-width="2"/>
+      <path d="M17 9.4 25.2 14v9.2L17 27.8 8.8 23.2V14Z" fill="var(--brand)" opacity=".16"/>
+      <path d="M17 9.4 25.2 14v9.2L17 27.8 8.8 23.2V14Z" fill="none" stroke="var(--brand)" stroke-width="1.4"/>
+      <path d="M13.2 18.8l2.6 2.6 5-5" fill="none" stroke="var(--brand)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <div class="wm">IPÊ<span class="sl">/</span>FIS</div>
+      <div class="tag">Coleta de campo · Amazônia Bee</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="clockbox">
+    <b id="clock">—</b>
+    <span id="quem">observador não definido</span>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Áreas do aplicativo">
+  <button role="tab" id="tb-hoje" aria-controls="pn-hoje" aria-selected="true">Hoje<span class="n" id="n-pend" hidden></span></button>
+  <button role="tab" id="tb-coletar" aria-controls="pn-coletar" aria-selected="false">Coletar</button>
+  <button role="tab" id="tb-colonias" aria-controls="pn-colonias" aria-selected="false">Colônias</button>
+  <button role="tab" id="tb-registros" aria-controls="pn-registros" aria-selected="false">Registros</button>
+  <button role="tab" id="tb-enviar" aria-controls="pn-enviar" aria-selected="false">Enviar</button>
+</nav>
+
+<!-- ===================== HOJE ===================== -->
+<section id="pn-hoje" role="tabpanel" aria-labelledby="tb-hoje">
+  <div class="note w sec" id="aviso-nome" hidden><b>Antes de começar:</b> informe o seu nome na aba <a href="#" id="ir-config">Enviar → Este aparelho</a>. Ele vai em todas as fichas como observador.</div>
+  <div class="sec"><div class="kpis" id="kpis"></div></div>
+  <div class="sec">
+    <header><h2>Pendências</h2><span class="hint">Calculadas pelas frequências do plano de trabalho</span></header>
+    <div id="pend"></div>
+  </div>
+  <div class="sec">
+    <header><h2>Registros de hoje</h2></header>
+    <div id="hoje-lista"></div>
+  </div>
+</section>
+
+<!-- ===================== COLETAR ===================== -->
+<section id="pn-coletar" role="tabpanel" aria-labelledby="tb-coletar" hidden>
+  <div id="coletar-menu" class="sec">
+    <header><h2>Fichas de campo</h2><span class="hint">Mesmas fichas e colunas da planilha do Anexo 05a</span></header>
+    <div class="fichas" id="fichas"></div>
+  </div>
+  <div id="coletar-form" class="sec" hidden>
+    <header><h2 id="f-titulo">—</h2><span class="hint" id="f-quando"></span><span class="spacer"></span>
+      <button class="btn ghost sm" type="button" id="f-voltar">Voltar</button></header>
+    <div class="card"><form id="f" class="form" novalidate autocomplete="off"></form>
+      <div class="rowend">
+        <button class="btn danger sm" type="button" id="f-excluir" hidden>Excluir</button>
+        <span class="spacer"></span>
+        <button class="btn ghost" type="button" id="f-cancelar">Cancelar</button>
+        <button class="btn ghost" type="button" id="f-proxima" hidden>Salvar e próxima colônia</button>
+        <button class="btn" type="button" id="f-salvar">Salvar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== COLÔNIAS ===================== -->
+<section id="pn-colonias" role="tabpanel" aria-labelledby="tb-colonias" hidden>
+  <div class="sec">
+    <header><h2>Cadastro de colônias (F01)</h2><span class="hint">Toque numa colônia para editar</span><span class="spacer"></span>
+      <button class="btn ghost sm" type="button" id="c-nova">Nova colônia</button></header>
+    <div class="note sec">O controle de cada grupo é <b>sorteado</b> aqui, na presença do meliponicultor, antes da troca das melgueiras. O sorteio fica registrado e vai para a planilha.</div>
+    <div id="grupos"></div>
+  </div>
+</section>
+
+<!-- ===================== REGISTROS ===================== -->
+<section id="pn-registros" role="tabpanel" aria-labelledby="tb-registros" hidden>
+  <div class="sec">
+    <header><h2>Registros salvos</h2><span class="hint" id="r-total">—</span></header>
+    <div class="form" style="margin-bottom:12px">
+      <div class="fld"><label for="r-ficha">Ficha</label><select id="r-ficha"></select></div>
+      <div class="fld"><label for="r-col">Colônia, grupo ou meliponicultor</label><input id="r-col" placeholder="ex.: G01-C2"></div>
+    </div>
+    <div id="r-lista"></div>
+  </div>
+</section>
+
+<!-- ===================== ENVIAR ===================== -->
+<section id="pn-enviar" role="tabpanel" aria-labelledby="tb-enviar" hidden>
+  <div class="sec">
+    <header><h2>Enviar os dados</h2><span class="hint" id="e-ultimo">—</span></header>
+    <div class="card">
+      <p style="font-size:13.4px;margin-bottom:12px">A planilha sai no formato do <b>Anexo 05a</b> (uma aba por ficha) e pode ser lida direto pelo programa de análise (Anexo 05b). Envie para a coordenação pelo WhatsApp, e-mail ou Drive, até o dia 5 de cada mês.</p>
+      <div class="rowend" style="justify-content:flex-start">
+        <button class="btn" type="button" id="e-xlsx">Enviar planilha (.xlsx)</button>
+        <button class="btn ghost" type="button" id="e-salvar">Salvar no aparelho</button>
+        <button class="btn ghost" type="button" id="e-fotos">Enviar fotos novas (.zip)</button>
+        <button class="btn ghost sm" type="button" id="e-fotos-todas">Todas as fotos</button>
+      </div>
+    </div>
+  </div>
+  <div class="sec">
+    <header><h2>Cópia de segurança</h2><span class="hint">Leva os registros para outro aparelho ou junta os de dois aparelhos</span></header>
+    <div class="card">
+      <p style="font-size:13px;color:var(--ink-2);margin-bottom:10px">Desinstalar o aplicativo apaga os registros. Faça a cópia antes. A importação só <b>acrescenta</b> ou atualiza: nunca apaga o que já existe.</p>
+      <div class="rowend" style="justify-content:flex-start">
+        <button class="btn ghost" type="button" id="e-copia">Salvar cópia (.json)</button>
+        <label class="btn ghost" for="e-importar" style="display:inline-flex;align-items:center">Importar cópia (.json)</label>
+        <input type="file" id="e-importar" accept="application/json,.json" hidden>
+      </div>
+      <p class="h" id="e-imp-msg" style="font-size:12px;color:var(--muted);margin-top:8px"></p>
+    </div>
+  </div>
+  <div class="sec" id="config">
+    <header><h2>Este aparelho</h2></header>
+    <div class="card">
+      <div class="form">
+        <div class="fld"><label for="cf-nome">Seu nome (observador)</label><input id="cf-nome" placeholder="como aparece nas fichas"></div>
+        <div class="fld"><label for="cf-disp">Código do aparelho</label><input id="cf-disp" class="mono" readonly></div>
+        <div class="fld"><label for="cf-tema">Tema</label><select id="cf-tema"><option value="">Do sistema</option><option value="light">Claro</option><option value="dark">Escuro</option></select></div>
+      </div>
+      <div class="rowend"><button class="btn" type="button" id="cf-salvar">Salvar</button></div>
+      <div class="tw" style="margin-top:14px"><table><thead><tr><th>Ficha</th><th>Registros</th></tr></thead><tbody id="cf-contagem"></tbody></table></div>
+      <p class="h" id="cf-armaz" style="font-size:12px;color:var(--muted);margin-top:8px"></p>
+    </div>
+  </div>
+</section>
+
+<div class="foot-note"><span>Coleta de Campo <span id="versao">1.0</span> · Projeto Amazônia Bee · FIS/IPÊ</span><span>Funciona sem internet. Os registros ficam neste aparelho até o envio.</span></div>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true"><div class="card" id="modal-c"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* =========================================================================
+   Coleta de Campo — experimento de meliponicultura, Cametá do Ramos (FIS/IPÊ)
+   Fichas F01–F10 do Anexo 05a. Tudo offline: localStorage (registros) e
+   IndexedDB (fotos). Exporta .xlsx no formato da planilha, .zip de fotos e .json.
+   ========================================================================= */
+const VERSAO = "1.0";
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const APP = window.ColetaApp || null;           // ponte nativa (só no APK)
+const p2 = n => String(n).padStart(2, "0");
+const hojeISO = (d = new Date()) => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+const horaAgora = (d = new Date()) => `${p2(d.getHours())}:${p2(d.getMinutes())}`;
+const brData = iso => iso ? iso.slice(8, 10) + "/" + iso.slice(5, 7) + "/" + iso.slice(0, 4) : "";
+const diasEntre = (a, b) => Math.round((new Date(b + "T12:00") - new Date(a + "T12:00")) / 864e5);
+function uid() { const a = new Uint8Array(8); crypto.getRandomValues(a); return Array.from(a, x => x.toString(16).padStart(2, "0")).join(""); }
+function toast(t) { const el = $("#toast"); el.textContent = t; el.classList.add("on"); clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove("on"), 2600); }
+function vibrar(ms) { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} }
+
+/* ---------------- definições das fichas ---------------- */
+const ESCALA_OCUP = ["Sem sinal de visita", "Cerume ou batume nas frestas e paredes", "Primeiros potes em construção",
+  "Potes ocupando até metade da área", "Potes ocupando mais da metade da área", "Melgueira cheia, potes fechados"];
+const PRATICAS = ["Caixas identificadas e registro por colônia", "Colmeias à sombra e protegidas da chuva",
+  "Suportes com proteção contra formigas", "Revisão periódica das colônias com anotação",
+  "Extração com utensílios limpos e mel sem contato com o ambiente", "Mel guardado em geladeira ou desumidificado",
+  "Controle de forídeos", "Alimentação em período de escassez, quando necessária",
+  "Divisão de colônias com técnica adequada", "Registro de produção por safra"];
+const FACES = ["Norte", "Sul", "Leste", "Oeste"];
+const GRUPOS_BASE = [
+  { g: "G01", esp: "M. interrupta", amb: "Rio/igapó" }, { g: "G02", esp: "M. interrupta", amb: "Terra firme" },
+  { g: "G03", esp: "M. seminigra", amb: "Rio/igapó" }, { g: "G04", esp: "M. seminigra", amb: "Terra firme" }];
+
+// tipos: col, grupo, kit, data, hora, txt, area, num, int, sel, sn, escala, contador, crono, foto, fotos, praticas, calc, gps, meli
+const OBS = { k: "observador", r: "Observador", t: "txt", def: "nome" };
+const FICHAS = [
+  { id: "F01", aba: "F01_Cadastro", nome: "Cadastro da colônia", quando: "Uma vez; tratamento definido no sorteio", oculta: true,
+    chave: "colonia", campos: [
+      { k: "colonia", r: "Código da colônia", t: "txt", req: 1, h: "G01-C1 a G04-C4; pares adicionais P01-C1…" },
+      { k: "grupo", r: "Grupo / meliponário", t: "txt", req: 1 },
+      { k: "especie", r: "Espécie", t: "sel", op: ["M. interrupta", "M. seminigra"] },
+      { k: "ambiente", r: "Ambiente", t: "sel", op: ["Rio/igapó", "Terra firme"] },
+      { k: "meliponicultor", r: "Meliponicultor(a)", t: "txt" },
+      { k: "monitor", r: "Monitor responsável", t: "txt" },
+      { k: "tratamento", r: "Tratamento", t: "sel", op: ["NOVA", "ANTIGA"], h: "Definido pelo sorteio do grupo" },
+      { k: "kit", r: "Código do kit", t: "txt", h: "Ex.: K01. Em branco se a colônia não tem kit" },
+      { k: "latitude", r: "Latitude", t: "gps" }, { k: "longitude", r: "Longitude", t: "num" },
+      { k: "modelo_caixa", r: "Modelo da caixa", t: "txt" },
+      { k: "observacoes", r: "Observações", t: "area" }] },
+  { id: "F02", aba: "F02_LinhaBase", nome: "Linha de base", quando: "Na extração de out/2026, antes da troca das melgueiras",
+    chave: "colonia", campos: [
+      { k: "colonia", r: "Colônia", t: "col", req: 1 }, { k: "data", r: "Data", t: "data", req: 1 }, OBS,
+      { k: "discos_cria", r: "Discos de cria", t: "int", min: 0, max: 30 },
+      { k: "diametro_maior_disco_cm", r: "Diâmetro do maior disco (cm)", t: "num", min: 0, max: 30 },
+      { k: "potes_mel", r: "Potes de mel (aprox.)", t: "int", min: 0, max: 600 },
+      { k: "potes_polen", r: "Potes de pólen (aprox.)", t: "int", min: 0, max: 600 },
+      { k: "entradas_5min", r: "Entradas em 5 min", t: "contador" },
+      { k: "peso_antes_extracao_kg", r: "Peso antes da extração (kg)", t: "num", min: 0, max: 50 },
+      { k: "peso_depois_extracao_kg", r: "Peso depois da extração (kg)", t: "num", min: 0, max: 50 },
+      { k: "tara_melgueira_kg", r: "Tara da melgueira nova vazia (kg)", t: "num", min: 0, max: 15, h: "Só nas colônias com melgueira nova" },
+      { k: "estado_melgueira", r: "Melgueira após a extração", t: "sel", op: ["NOVA_VAZIA", "ANTIGA_POTES_MANTIDOS", "ANTIGA_POTES_RETIRADOS"] },
+      { k: "sanidade", r: "Sanidade", t: "txt", h: "Forídeos, formigas, fungos…" },
+      { k: "observacoes", r: "Observações", t: "area" }] },
+  { id: "F03", aba: "F03_InstalacaoKit", nome: "Instalação do kit", quando: "Uma vez por kit",
+    chave: "kit", campos: [
+      { k: "kit", r: "Kit", t: "kit", req: 1 }, { k: "colonia", r: "Colônia", t: "col", req: 1 },
+      { k: "data", r: "Data", t: "data", req: 1 }, { k: "hora", r: "Hora", t: "hora" }, OBS,
+      { k: "profundidade_tc_cm", r: "Profundidade dos termopares (cm)", t: "num", min: 0, max: 30 },
+      { k: "face_caixa", r: "Face da caixa com os furos", t: "sel", op: FACES },
+      { k: "orientacao_entrada", r: "Orientação da entrada", t: "sel", op: FACES },
+      { k: "altura_solo_cm", r: "Altura em relação ao solo (cm)", t: "num", min: 0, max: 400 },
+      { k: "correcao_tc1_c", r: "Correção TC1 (°C)", t: "num", min: -10, max: 10 },
+      { k: "correcao_tc2_c", r: "Correção TC2 (°C)", t: "num", min: -10, max: 10 },
+      { k: "correcao_tc3_c", r: "Correção TC3 (°C)", t: "num", min: -10, max: 10 },
+      { k: "fator_balanca", r: "Fator da balança", t: "num" },
+      { k: "fotos", r: "Fotos da instalação", t: "fotos" },
+      { k: "observacoes", r: "Observações", t: "area" }] },
+  { id: "F04", aba: "F04_VerificacaoKit", nome: "Verificação do kit", quando: "Semanal até dez/2026; quinzenal depois",
+    chave: "kit", campos: [
+      { k: "kit", r: "Kit", t: "kit", req: 1 }, { k: "data", r: "Data", t: "data", req: 1 }, OBS,
+      { k: "tela_ok", r: "Tela e leitura normais", t: "sn" }, { k: "dados_baixados", r: "Dados baixados", t: "sn" },
+      { k: "hora_acertada", r: "Hora acertada", t: "sn" },
+      { k: "bateria_v", r: "Bateria (V)", t: "num", min: 2.5, max: 4.5 },
+      { k: "silica_trocada", r: "Sílica trocada", t: "sn" },
+      { k: "problema", r: "Problema encontrado", t: "txt" }, { k: "acao", r: "Ação tomada", t: "txt" },
+      { k: "observacoes", r: "Observações", t: "area" }] },
+  { id: "F05", aba: "F05_Ocupacao", nome: "Ocupação da melgueira", quando: "Quinzenal até dez/2026; mensal depois",
+    chave: "colonia", proxima: 1, campos: [
+      { k: "colonia", r: "Colônia", t: "col", req: 1 }, { k: "data", r: "Data", t: "data", req: 1 }, OBS,
+      { k: "nivel", r: "Nível de ocupação", t: "escala", op: ESCALA_OCUP, ini: 0, req: 1 },
+      { k: "foto", r: "Foto de cima da melgueira", t: "fotos" },
+      { k: "observacoes", r: "Observações", t: "area" }] },
+  { id: "F06", aba: "F06_PesagemAtividade", nome: "Pesagem e atividade", quando: "Mensal; pesagem no início da manhã, contagem entre 9 h e 10 h",
+    chave: "colonia", proxima: 1, campos: [
+      { k: "colonia", r: "Colônia", t: "col", req: 1 }, { k: "data", r: "Data", t: "data", req: 1 },
+      { k: "hora", r: "Hora", t: "hora" }, OBS,
+      { k: "peso_kg", r: "Peso da colmeia (kg)", t: "num", min: 0, max: 50, h: "Colmeia inteira, balança suspensa" },
+      { k: "entradas_5min", r: "Entradas em 5 min", t: "contador" },
+      { k: "observacoes", r: "Observações", t: "area" }] },
+  { id: "F07", aba: "F07_Chuva", nome: "Chuva do dia", quando: "Diária, às 7 h: chuva das últimas 24 h",
+    chave: "grupo", campos: [
+      { k: "grupo", r: "Meliponário (grupo)", t: "grupo", req: 1 }, { k: "data", r: "Data", t: "data", req: 1 },
+      { k: "chuva_mm", r: "Chuva (mm)", t: "num", min: 0, max: 300, req: 1, h: "Sem chuva = 0" },
+      { k: "leitor", r: "Quem leu", t: "txt", def: "nome" }] },
+  { id: "F08", aba: "F08_Manejo", nome: "Manejo e ocorrências", quando: "No dia em que ocorrer",
+    chave: "colonia", campos: [
+      { k: "colonia", r: "Colônia", t: "col", req: 1 }, { k: "data", r: "Data", t: "data", req: 1 }, { k: "hora", r: "Hora", t: "hora" },
+      { k: "tipo", r: "Tipo", t: "sel", req: 1, op: ["ABERTURA", "ALIMENTACAO", "COLHEITA", "DIVISAO", "PRAGA", "ASSISTENCIA", "OUTRO"] },
+      { k: "descricao", r: "Descrição", t: "area" }, { k: "responsavel", r: "Responsável", t: "txt", def: "nome" }] },
+  { id: "F09", aba: "F09_Extracao", nome: "Extração e amostras", quando: "Out/2026 (safra 2026) e set–out/2027 (safra 2027)",
+    chave: "colonia", campos: [
+      { k: "colonia", r: "Colônia", t: "col", req: 1 },
+      { k: "safra", r: "Safra", t: "sel", op: ["2026", "2027"], req: 1, def: "safra" },
+      { k: "data", r: "Data", t: "data", req: 1 },
+      { k: "mel_ml", r: "Mel (mL)", t: "num", min: 0, max: 20000 }, { k: "mel_g", r: "Mel (g)", t: "num", min: 0, max: 30000 },
+      { k: "umidade_pct", r: "Umidade do mel (%)", t: "num", min: 10, max: 60, h: "Refratômetro, no dia" },
+      { k: "sabura_g", r: "Saburá (g)", t: "num", min: 0, max: 5000 }, { k: "cerume_g", r: "Cerume (g)", t: "num", min: 0, max: 5000 },
+      { k: "tempo_manejo_min", r: "Tempo da extração (min)", t: "crono" },
+      { k: "praticidade_1a5", r: "Praticidade (1 muito difícil · 5 muito fácil)", t: "escala", op: ["1", "2", "3", "4", "5"], ini: 1, linha: 1 },
+      { k: "colonia_viva", r: "Colônia viva", t: "sn", def: "S" },
+      { k: "codigo_amostra", r: "Código da amostra de mel", t: "txt", def: "amostra" },
+      { k: "observacoes", r: "Observações", t: "area" }] },
+  { id: "F10A", aba: "F10_Assistencia", nome: "Assistência técnica", quando: "A cada atendimento",
+    chave: "meliponicultor", campos: [
+      { k: "meliponicultor", r: "Meliponicultor(a) atendido", t: "meli", req: 1 }, { k: "data", r: "Data", t: "data", req: 1 },
+      { k: "tipo", r: "Tipo", t: "sel", op: ["VISITA", "TELEFONE", "OFICINA", "OUTRO"] },
+      { k: "recomendacoes", r: "Recomendações", t: "area" }, { k: "encaminhamentos", r: "Encaminhamentos", t: "area" },
+      { k: "responsavel", r: "Responsável", t: "txt", def: "nome" }] },
+  { id: "F10P", aba: "F10_Praticas", nome: "Índice de boas práticas", quando: "Nov/2026 (antes) e out/2027 (depois)",
+    chave: "meliponicultor", campos: [
+      { k: "meliponicultor", r: "Meliponicultor(a)", t: "meli", req: 1 },
+      { k: "momento", r: "Momento", t: "sel", op: ["ANTES", "DEPOIS"], req: 1 }, { k: "data", r: "Data", t: "data", req: 1 },
+      { k: "praticas", r: "Práticas adotadas", t: "praticas" },
+      { k: "indice", r: "Índice (0 a 10)", t: "calc", calc: r => PRATICAS.reduce((s, _, i) => s + (r["p" + p2(i + 1)] === 1 ? 1 : 0), 0) }] },
+  { id: "F10R", aba: "F10_ProducaoAssistidos", nome: "Produção dos assistidos", quando: "Uma linha por meliponicultor e safra",
+    chave: "meliponicultor", campos: [
+      { k: "meliponicultor", r: "Meliponicultor(a)", t: "meli", req: 1 },
+      { k: "safra", r: "Safra", t: "sel", op: ["2025", "2026", "2027"], req: 1, def: "safra" },
+      { k: "colonias_produtivas", r: "Colônias produtivas", t: "int", min: 0, max: 500 },
+      { k: "producao_total_l", r: "Produção total (L)", t: "num", min: 0, max: 2000 },
+      { k: "l_por_colonia", r: "Litros por colônia", t: "calc", calc: r => (r.colonias_produtivas > 0 && r.producao_total_l != null) ? Math.round(r.producao_total_l / r.colonias_produtivas * 100) / 100 : null },
+      { k: "colonias_perdidas", r: "Colônias perdidas", t: "int", min: 0, max: 500 },
+      { k: "colonias_multiplicadas", r: "Colônias multiplicadas", t: "int", min: 0, max: 500 },
+      { k: "mel_vendido_l", r: "Mel vendido (L)", t: "num", min: 0, max: 2000 },
+      { k: "mel_perdido_l", r: "Mel perdido (L)", t: "num", min: 0, max: 2000, h: "Fermentação, vazamento, pragas" },
+      { k: "assistido_desde", r: "Assistido desde", t: "data" },
+      { k: "observacoes", r: "Observações", t: "area" }] },
+];
+const F = Object.fromEntries(FICHAS.map(f => [f.id, f]));
+// colunas exportadas por ficha (praticas vira p01..p10)
+function colunas(f) {
+  const c = [];
+  f.campos.forEach(x => { if (x.t === "praticas") PRATICAS.forEach((_, i) => c.push("p" + p2(i + 1))); else c.push(x.k); });
+  return c.concat(["id", "registrado_em", "editado_em", "dispositivo"]);
+}
+
+/* ---------------- armazenamento ---------------- */
+const K = "cc.";
+const Loja = {
+  ler(c) { try { return JSON.parse(localStorage.getItem(K + c) || "[]"); } catch (e) { return []; } },
+  gravar(c, v) { localStorage.setItem(K + c, JSON.stringify(v)); },
+  cfg() { try { return JSON.parse(localStorage.getItem(K + "cfg") || "{}"); } catch (e) { return {}; } },
+  salvarCfg(o) { localStorage.setItem(K + "cfg", JSON.stringify(o)); },
+};
+let CFG = Loja.cfg();
+if (!CFG.disp) { CFG.disp = uid().slice(0, 6).toUpperCase(); try { Loja.salvarCfg(CFG); } catch (e) {} }
+
+function regs(id) { return Loja.ler(id).filter(r => !r._excluido); }
+function salvarRegistro(fid, r) {
+  const v = Loja.ler(fid);
+  const agora = new Date().toISOString();
+  if (r.id) { const i = v.findIndex(x => x.id === r.id); r.editado_em = agora; if (i >= 0) v[i] = r; else v.push(r); }
+  else { r.id = uid(); r.registrado_em = agora; r.dispositivo = CFG.disp; v.push(r); }
+  if (!r.registrado_em) r.registrado_em = agora;
+  Loja.gravar(fid, v);
+  return r;
+}
+function excluirRegistro(fid, id) {
+  const v = Loja.ler(fid); const r = v.find(x => x.id === id);
+  if (r) { r._excluido = true; r.editado_em = new Date().toISOString(); Loja.gravar(fid, v); }
+}
+
+// fotos: no APK ficam em arquivos do aplicativo (ponte nativa); no navegador, em IndexedDB.
+// A marca de "já enviada" fica no localStorage nos dois casos.
+const FotosNativas = {
+  exp() { try { return new Set(JSON.parse(localStorage.getItem(K + "fotosEnviadas") || "[]")); } catch (e) { return new Set(); } },
+  marcar(nome, v) { const s = this.exp(); v ? s.add(nome) : s.delete(nome); localStorage.setItem(K + "fotosEnviadas", JSON.stringify(Array.from(s))); },
+  async por(o) { if (!APP.fotoGravar(o.nome, o.dados.split(",")[1])) throw new Error("gravar"); this.marcar(o.nome, !!o.exportada); },
+  async pegar(nome) { const b = APP.fotoLer(nome); return b ? { nome, dados: "data:image/jpeg;base64," + b, exportada: this.exp().has(nome) } : undefined; },
+  async todas() { const n = JSON.parse(APP.fotoNomes() || "[]"); const out = []; for (const x of n) { const o = await this.pegar(x); if (o) out.push(o); } return out; },
+};
+const FotosIDB = {
+  db: null,
+  abrir() {
+    return new Promise((ok, erro) => {
+      if (this.db) return ok(this.db);
+      const q = indexedDB.open("cc-fotos", 1);
+      q.onupgradeneeded = () => q.result.createObjectStore("fotos", { keyPath: "nome" });
+      q.onsuccess = () => { this.db = q.result; ok(this.db); };
+      q.onerror = () => erro(q.error);
+    });
+  },
+  async op(modo, fn) {
+    const db = await this.abrir();
+    return new Promise((ok, erro) => {
+      const tx = db.transaction("fotos", modo); const st = tx.objectStore("fotos");
+      const q = fn(st); tx.oncomplete = () => ok(q && q.result); tx.onerror = () => erro(tx.error);
+    });
+  },
+  por(o) { return this.op("readwrite", st => st.put(o)); },
+  pegar(nome) { return this.op("readonly", st => st.get(nome)); },
+  todas() { return this.op("readonly", st => st.getAll()); },
+};
+const Fotos = (APP && APP.fotoGravar) ? FotosNativas : FotosIDB;
+
+/* ---------------- cadastro: semente ---------------- */
+function semear() {
+  if (localStorage.getItem(K + "semeado")) return;
+  const v = Loja.ler("F01");
+  if (!v.length) {
+    GRUPOS_BASE.forEach(g => { for (let i = 1; i <= 4; i++) v.push({ colonia: `${g.g}-C${i}`, grupo: g.g, especie: g.esp, ambiente: g.amb,
+      id: uid(), registrado_em: new Date().toISOString(), dispositivo: CFG.disp }); });
+    Loja.gravar("F01", v);
+  }
+  localStorage.setItem(K + "semeado", "1");
+}
+const colonias = () => regs("F01").sort((a, b) => String(a.colonia).localeCompare(String(b.colonia)));
+const grupos = () => Array.from(new Set(colonias().map(c => c.grupo).filter(Boolean))).sort();
+const kits = () => Array.from(new Set(colonias().map(c => c.kit).filter(Boolean))).sort();
+const colonia = cod => colonias().find(c => c.colonia === cod);
+function meliponicultores() {
+  const s = new Set();
+  colonias().forEach(c => c.meliponicultor && s.add(c.meliponicultor));
+  ["F10A", "F10P", "F10R"].forEach(f => regs(f).forEach(r => r.meliponicultor && s.add(r.meliponicultor)));
+  return Array.from(s).sort((a, b) => a.localeCompare(b));
+}
+
+/* ---------------- relógio e topo ---------------- */
+function relogio() {
+  const d = new Date();
+  $("#clock").textContent = `${brData(hojeISO(d))} ${horaAgora(d)}`;
+  $("#quem").textContent = CFG.nome ? "observador: " + CFG.nome : "observador não definido";
+}
+setInterval(relogio, 15000);
+
+/* ---------------- abas ---------------- */
+const ABAS = ["hoje", "coletar", "colonias", "registros", "enviar"];
+function abrirAba(nome) {
+  ABAS.forEach(a => {
+    $("#tb-" + a).setAttribute("aria-selected", a === nome ? "true" : "false");
+    $("#pn-" + a).hidden = a !== nome;
+  });
+  try { localStorage.setItem(K + "aba", nome); } catch (e) {}
+  if (nome === "hoje") renderHoje();
+  if (nome === "colonias") renderColonias();
+  if (nome === "registros") renderRegistros();
+  if (nome === "enviar") renderEnviar();
+  window.scrollTo(0, 0);
+}
+ABAS.forEach((a, i) => {
+  const b = $("#tb-" + a);
+  b.addEventListener("click", () => abrirAba(a));
+  b.addEventListener("keydown", ev => {
+    let j = null;
+    if (ev.key === "ArrowRight") j = (i + 1) % ABAS.length;
+    else if (ev.key === "ArrowLeft") j = (i - 1 + ABAS.length) % ABAS.length;
+    if (j !== null) { ev.preventDefault(); abrirAba(ABAS[j]); $("#tb-" + ABAS[j]).focus(); }
+  });
+});
+
+/* ---------------- pendências ---------------- */
+function ultimaData(fid, campo, valor) {
+  let m = null;
+  regs(fid).forEach(r => { if (r[campo] === valor && r.data && (!m || r.data > m)) m = r.data; });
+  return m;
+}
+function pendencias() {
+  const hoje = hojeISO(), p = [];
+  const intensivo = hoje < "2027-01-01";
+  grupos().forEach(g => { if (!regs("F07").some(r => r.grupo === g && r.data === hoje)) p.push({ f: "F07", pre: { grupo: g }, t: `Chuva de hoje — ${g}`, s: "Leitura do pluviômetro às 7 h", nivel: "warn" }); });
+  kits().forEach(k => {
+    const u = ultimaData("F04", "kit", k), lim = intensivo ? 7 : 14;
+    if (!u || diasEntre(u, hoje) >= lim) p.push({ f: "F04", pre: { kit: k }, t: `Verificar o kit ${k}`, s: u ? `Última verificação há ${diasEntre(u, hoje)} dias` : "Nenhuma verificação registrada", nivel: u ? "warn" : "idle" });
+  });
+  const temTroca = regs("F02").length > 0;
+  // ocupação e pesagem: uma linha por meliponário, com as colônias atrasadas
+  [["F05", "Ocupação da melgueira", intensivo ? 14 : 30, c => temTroca || c.tratamento],
+   ["F06", "Pesagem e atividade", 30, () => temTroca]].forEach(([fid, nome, lim, ativo]) => {
+    grupos().forEach(g => {
+      const atras = [];
+      colonias().filter(c => c.grupo === g && ativo(c)).forEach(c => {
+        const u = ultimaData(fid, "colonia", c.colonia);
+        if (!u || diasEntre(u, hoje) >= lim) atras.push({ c: c.colonia, u });
+      });
+      if (!atras.length) return;
+      const nunca = atras.every(x => !x.u);
+      p.push({ f: fid, pre: { colonia: atras[0].c }, t: `${nome} — ${g}`, nivel: nunca ? "idle" : "warn",
+        s: atras.map(x => x.c.replace(g + "-", "") + (x.u ? ` há ${diasEntre(x.u, hoje)} d` : " sem registro")).join(" · ") });
+    });
+  });
+  grupos().forEach(g => {
+    const cs = colonias().filter(c => c.grupo === g);
+    if (cs.length >= 2 && !cs.some(c => c.tratamento)) p.push({ aba: "colonias", t: `Sortear o controle — ${g}`, s: "Antes da troca das melgueiras", nivel: "warn" });
+  });
+  const ue = CFG.ultimoEnvio;
+  const total = FICHAS.reduce((s, f) => s + regs(f.id).length, 0);
+  if (total > 16 && (!ue || diasEntre(ue.slice(0, 10), hoje) >= 30)) p.push({ aba: "enviar", t: "Enviar a planilha do mês", s: ue ? `Último envio em ${brData(ue.slice(0, 10))}` : "Nenhum envio feito", nivel: "warn" });
+  return p;
+}
+
+function renderHoje() {
+  const hoje = hojeISO();
+  $("#aviso-nome").hidden = !!CFG.nome;
+  const p = pendencias();
+  const n = $("#n-pend"); n.hidden = !p.length; n.textContent = p.length;
+  let deHoje = [];
+  FICHAS.filter(f => f.id !== "F01").forEach(f => regs(f.id).forEach(r => { if ((r.registrado_em || "").slice(0, 10) === hoje || r.data === hoje) deHoje.push({ f, r }); }));
+  const ue = CFG.ultimoEnvio;
+  const total = FICHAS.reduce((s, f) => s + regs(f.id).length, 0);
+  $("#kpis").innerHTML = [
+    { lab: "Registros hoje", val: deHoje.length, sub: "neste aparelho" },
+    { lab: "Pendências", val: p.length, sub: "pelas frequências do plano", alerta: p.length > 0 },
+    { lab: "Total salvo", val: total, sub: "registros, todas as fichas" },
+    { lab: "Último envio", val: ue ? diasEntre(ue.slice(0, 10), hoje) + " d" : "—", sub: ue ? brData(ue.slice(0, 10)) : "nenhum envio" },
+  ].map(k => `<div class="kpi${k.alerta ? " alert" : ""}"><span class="lab">${k.lab}</span><span class="val">${k.val}</span><span class="sub">${k.sub}</span></div>`).join("");
+  $("#pend").innerHTML = p.length ? `<div class="lista">${p.map((x, i) => `<button class="item" data-i="${i}"><span><span class="t">${esc(x.t)}</span><br><span class="s">${esc(x.s)}</span></span><span class="pill ${x.nivel}"><span class="dot"></span>${x.nivel === "idle" ? "a iniciar" : "pendente"}</span></button>`).join("")}</div>`
+    : `<div class="empty"><b>Nada pendente</b>Tudo em dia pelas frequências do plano de trabalho.</div>`;
+  $$("#pend .item").forEach(b => b.addEventListener("click", () => {
+    const x = p[+b.dataset.i];
+    if (x.aba) abrirAba(x.aba); else { abrirAba("coletar"); abrirFicha(x.f, null, x.pre); }
+  }));
+  deHoje.sort((a, b) => String(b.r.registrado_em).localeCompare(String(a.r.registrado_em)));
+  $("#hoje-lista").innerHTML = deHoje.length ? `<div class="lista">${deHoje.slice(0, 30).map(o => linhaRegistro(o.f, o.r)).join("")}</div>`
+    : `<div class="empty"><b>Nenhum registro hoje</b>Use a aba Coletar.</div>`;
+  ligarLinhas("#hoje-lista");
+}
+
+/* ---------------- lista de registros ---------------- */
+function resumo(f, r) {
+  const v = [];
+  if (r.nivel != null && r.nivel !== "") v.push("nível " + r.nivel);
+  if (r.peso_kg != null) v.push(r.peso_kg + " kg");
+  if (r.entradas_5min != null && f.id === "F06") v.push(r.entradas_5min + " entradas");
+  if (r.chuva_mm != null) v.push(r.chuva_mm + " mm");
+  if (r.tipo) v.push(r.tipo.toLowerCase());
+  if (r.mel_ml != null) v.push(r.mel_ml + " mL");
+  if (r.umidade_pct != null) v.push(r.umidade_pct + " % umid.");
+  if (r.indice != null && f.id === "F10P") v.push("índice " + r.indice + " (" + String(r.momento || "").toLowerCase() + ")");
+  if (r.producao_total_l != null) v.push(r.producao_total_l + " L em " + (r.safra || ""));
+  if (f.id === "F04") v.push(r.tela_ok === "N" || r.problema ? "com problema" : "ok");
+  if (f.id === "F01") v.push([r.especie, r.ambiente, r.tratamento].filter(Boolean).join(" · "));
+  return v.join(" · ");
+}
+function linhaRegistro(f, r) {
+  const quem = r[f.chave] || "—";
+  return `<button class="item" data-f="${f.id}" data-id="${r.id}"><span><span class="t">${esc(f.nome)} — ${esc(quem)}</span><br><span class="s">${esc(resumo(f, r))}</span></span><span class="r">${esc(brData(r.data || (r.registrado_em || "").slice(0, 10)))}<br>${esc(r.hora || "")}</span></button>`;
+}
+function ligarLinhas(sel) {
+  $$(sel + " .item[data-f]").forEach(b => b.addEventListener("click", () => {
+    const f = F[b.dataset.f], r = Loja.ler(f.id).find(x => x.id === b.dataset.id);
+    if (f.id === "F01") { abrirAba("colonias"); editarColonia(r); return; }
+    abrirAba("coletar"); abrirFicha(f.id, r);
+  }));
+}
+
+/* ---------------- menu de fichas ---------------- */
+function renderFichas() {
+  $("#fichas").innerHTML = FICHAS.filter(f => !f.oculta).map(f => `<button class="ficha" data-f="${f.id}"><span class="cod">${f.id.slice(0, 3)} · ${esc(f.aba)}</span><span class="nm">${esc(f.nome)}</span><span class="q">${esc(f.quando)}</span></button>`).join("");
+  $$("#fichas .ficha").forEach(b => b.addEventListener("click", () => abrirFicha(b.dataset.f)));
+}
+
+/* ---------------- formulário genérico ---------------- */
+let ATUAL = null;   // { f, r, fotos: [] }
+function valorPadrao(c, pre) {
+  if (pre && pre[c.k] != null) return pre[c.k];
+  if (c.t === "data") return hojeISO();
+  if (c.t === "hora") return horaAgora();
+  if (c.def === "nome") return CFG.nome || "";
+  if (c.def === "S") return "S";
+  if (c.def === "safra") return String(new Date().getFullYear());
+  return "";
+}
+function opcoesColonia(v) {
+  const cs = colonias();
+  return `<option value="">— escolha —</option>` + grupos().map(g => `<optgroup label="${esc(g)}">${cs.filter(c => c.grupo === g).map(c => `<option value="${esc(c.colonia)}"${c.colonia === v ? " selected" : ""}>${esc(c.colonia)}${c.tratamento ? " · " + c.tratamento.toLowerCase() : ""}${c.meliponicultor ? " · " + esc(c.meliponicultor) : ""}</option>`).join("")}</optgroup>`).join("");
+}
+function campoHTML(c, v) {
+  const id = "c-" + c.k, req = c.req ? ' <span class="req">*</span>' : "";
+  const h = c.h ? `<span class="h">${esc(c.h)}</span>` : `<span class="h"></span>`;
+  const val = v == null ? "" : v;
+  switch (c.t) {
+    case "col": return `<div class="fld" data-k="${c.k}"><label for="${id}">${esc(c.r)}${req}</label><select id="${id}">${opcoesColonia(val)}</select>${h}</div>`;
+    case "grupo": return `<div class="fld" data-k="${c.k}"><label for="${id}">${esc(c.r)}${req}</label><select id="${id}"><option value="">— escolha —</option>${grupos().map(g => `<option${g === val ? " selected" : ""}>${esc(g)}</option>`).join("")}</select>${h}</div>`;
+    case "kit": return `<div class="fld" data-k="${c.k}"><label for="${id}">${esc(c.r)}${req}</label><input id="${id}" list="dl-kits" value="${esc(val)}" placeholder="K01"><datalist id="dl-kits">${kits().map(k => `<option value="${esc(k)}">`).join("")}</datalist>${h}</div>`;
+    case "meli": return `<div class="fld" data-k="${c.k}"><label for="${id}">${esc(c.r)}${req}</label><input id="${id}" list="dl-meli" value="${esc(val)}"><datalist id="dl-meli">${meliponicultores().map(k => `<option value="${esc(k)}">`).join("")}</datalist>${h}</div>`;
+    case "data": return `<div class="fld" data-k="${c.k}"><label for="${id}">${esc(c.r)}${req}</label><input type="date" id="${id}" value="${esc(val)}">${h}</div>`;
+    case "hora": return `<div class="fld" data-k="${c.k}"><label for="${id}">${esc(c.r)}${req}</label><input type="time" id="${id}" value="${esc(val)}">${h}</div>`;
+    case "num": case "int": return `<div class="fld" data-k="${c.k}"><label for="${id}">${esc(c.r)}${req}</label><input id="${id}" inputmode="decimal" value="${esc(String(val).replace(".", ","))}">${h}</div>`;
+    case "gps": return `<div class="fld" data-k="${c.k}"><label for="${id}">${esc(c.r)}${req}</label><div class="widget"><input id="${id}" inputmode="decimal" value="${esc(String(val).replace(".", ","))}"><button class="btn ghost sm" type="button" data-gps>Usar GPS</button></div><span class="h" id="gps-msg">Preenche latitude e longitude</span></div>`;
+    case "area": return `<div class="fld full" data-k="${c.k}"><label for="${id}">${esc(c.r)}${req}</label><textarea id="${id}">${esc(val)}</textarea>${h}</div>`;
+    case "sel": return `<div class="fld" data-k="${c.k}"><label for="${id}">${esc(c.r)}${req}</label><select id="${id}"><option value="">—</option>${c.op.map(o => `<option${String(o) === String(val) ? " selected" : ""}>${esc(o)}</option>`).join("")}</select>${h}</div>`;
+    case "sn": return `<div class="fld" data-k="${c.k}"><span class="lb">${esc(c.r)}${req}</span><div class="sn" data-sn="${c.k}"><button type="button" data-v="S" aria-pressed="${val === "S"}">Sim</button><button type="button" data-v="N" aria-pressed="${val === "N"}">Não</button></div>${h}</div>`;
+    case "escala": return `<div class="fld full" data-k="${c.k}"><span class="lb">${esc(c.r)}${req}</span><div class="escala${c.linha ? " linha" : ""}" data-esc="${c.k}">${c.op.map((o, i) => { const n = i + c.ini; return `<button type="button" data-v="${n}" aria-pressed="${String(val) === String(n)}"><b>${n}</b>${c.linha ? "" : `<span>${esc(o)}</span>`}</button>`; }).join("")}</div>${h}</div>`;
+    case "contador": return `<div class="fld full" data-k="${c.k}"><label for="${id}">${esc(c.r)}${req}</label><div class="widget"><input id="${id}" inputmode="numeric" value="${esc(val)}"><button class="btn ghost sm" type="button" data-cont="${c.k}">Contar 5 min</button></div>
+      <div class="cont" id="cont-${c.k}"><div class="rel" data-rel>05:00</div><button type="button" class="mais" data-mais>+1 abelha entrando</button>
+      <div class="tot">total<b data-tot>0</b></div><div class="rowend" style="margin-top:0"><button type="button" class="btn ghost sm" data-menos>−1</button><button type="button" class="btn ghost sm" data-parar>Encerrar</button></div></div>${h}</div>`;
+    case "crono": return `<div class="fld" data-k="${c.k}"><label for="${id}">${esc(c.r)}${req}</label><div class="widget"><input id="${id}" inputmode="decimal" value="${esc(String(val).replace(".", ","))}"><button class="btn ghost sm" type="button" data-crono="${c.k}">Iniciar</button></div><span class="h" data-crono-msg>Toque em Iniciar no começo e em Parar no fim</span></div>`;
+    case "fotos": return `<div class="fld full" data-k="${c.k}"><span class="lb">${esc(c.r)}${req}</span><div class="fotos" id="fotos-${c.k}"></div>
+      <div class="rowend" style="justify-content:flex-start;margin-top:4px"><label class="btn ghost sm" style="display:inline-flex;align-items:center" for="cap-${c.k}">Tirar foto</label>
+      <input type="file" id="cap-${c.k}" accept="image/*" capture="environment" hidden></div>${h}</div>`;
+    case "praticas": return `<div class="fld full" data-k="${c.k}"><span class="lb">${esc(c.r)} — marque as que o meliponicultor adota</span><div>${PRATICAS.map((t, i) => { const k = "p" + p2(i + 1); return `<label class="chk"><input type="checkbox" data-p="${k}"${ATUAL.r && ATUAL.r[k] === 1 ? " checked" : ""}><span><b class="mono">${k}</b> ${esc(t)}</span></label>`; }).join("")}</div></div>`;
+    case "calc": return `<div class="fld" data-k="${c.k}"><span class="lb">${esc(c.r)}</span><div class="mono" style="font-size:20px;font-weight:700" id="${id}">—</div><span class="h">Calculado</span></div>`;
+    default: return `<div class="fld" data-k="${c.k}"><label for="${id}">${esc(c.r)}${req}</label><input id="${id}" value="${esc(val)}">${h}</div>`;
+  }
+}
+
+function abrirFicha(fid, r, pre) {
+  const f = F[fid];
+  ATUAL = { f, r: r ? JSON.parse(JSON.stringify(r)) : null, fotos: [] };
+  $("#coletar-menu").hidden = true; $("#coletar-form").hidden = false;
+  $("#f-titulo").textContent = `${f.id.slice(0, 3)} · ${f.nome}${r ? " (editar)" : ""}`;
+  $("#f-quando").textContent = f.quando;
+  $("#f").innerHTML = f.campos.map(c => campoHTML(c, r ? r[c.k] : valorPadrao(c, pre))).join("");
+  $("#f-excluir").hidden = !r;
+  $("#f-proxima").hidden = !(f.proxima && !r);
+  ligarWidgets(f);
+  if (r) f.campos.filter(c => c.t === "fotos").forEach(c => { ATUAL.fotos = String(r[c.k] || "").split(/\s+/).filter(Boolean); mostrarFotos(c.k); });
+  recalcular();
+  window.scrollTo(0, 0);
+}
+function fecharFicha() {
+  pararContadores();
+  ATUAL = null; $("#coletar-form").hidden = true; $("#coletar-menu").hidden = false;
+}
+$("#f-voltar").addEventListener("click", fecharFicha);
+$("#f-cancelar").addEventListener("click", fecharFicha);
+
+function lerNum(s) {
+  if (s == null) return null;
+  s = String(s).trim().replace(/\s/g, "");
+  if (!s) return null;
+  if (s.includes(",") && s.includes(".")) s = s.replace(/\./g, "");
+  s = s.replace(",", ".");
+  const n = Number(s);
+  return isFinite(n) ? n : NaN;
+}
+function coletar() {
+  const f = ATUAL.f, r = ATUAL.r ? ATUAL.r : {};
+  const erros = [], avisos = [];
+  f.campos.forEach(c => {
+    const el = $("#c-" + c.k);
+    let v;
+    switch (c.t) {
+      case "sn": { const b = $(`[data-sn="${c.k}"] [aria-pressed="true"]`); v = b ? b.dataset.v : ""; break; }
+      case "escala": { const b = $(`[data-esc="${c.k}"] [aria-pressed="true"]`); v = b ? Number(b.dataset.v) : null; break; }
+      case "praticas": $$("[data-p]").forEach(x => { r[x.dataset.p] = x.checked ? 1 : 0; }); return;
+      case "fotos": v = ATUAL.fotos.join(" "); break;
+      case "calc": return;
+      case "num": case "int": case "gps": case "contador": case "crono": {
+        v = lerNum(el.value);
+        if (Number.isNaN(v)) { erros.push([c, "Número inválido"]); v = null; break; }
+        if (v != null && c.t === "int" && !Number.isInteger(v)) erros.push([c, "Use um número inteiro"]);
+        if (v != null && ((c.min != null && v < c.min) || (c.max != null && v > c.max))) avisos.push(`${c.r}: ${String(v).replace(".", ",")} (esperado de ${c.min} a ${c.max})`);
+        break; }
+      default: v = el ? el.value.trim() : "";
+    }
+    if (c.req && (v === "" || v == null)) erros.push([c, "Obrigatório"]);
+    r[c.k] = (v === "" ? null : v);
+  });
+  if (f.id === "F01") r.longitude = lerNum($("#c-longitude").value);
+  f.campos.filter(c => c.t === "calc").forEach(c => { r[c.k] = c.calc(r); });
+  return { r, erros, avisos };
+}
+function marcarErros(erros) {
+  $$("#f .fld").forEach(x => x.classList.remove("erro"));
+  erros.forEach(([c, m]) => { const fl = $(`#f .fld[data-k="${c.k}"]`); if (fl) { fl.classList.add("erro"); const h = fl.querySelector(".h"); if (h) h.textContent = m; } });
+  if (erros.length) { const fl = $(`#f .fld[data-k="${erros[0][0].k}"]`); fl && fl.scrollIntoView({ block: "center" }); }
+}
+function salvarAtual(proxima) {
+  const { r, erros, avisos } = coletar();
+  marcarErros(erros);
+  if (erros.length) { toast("Confira os campos marcados"); return; }
+  if (avisos.length && !confirm("Valor fora do esperado:\n\n" + avisos.join("\n") + "\n\nSalvar assim mesmo?")) return;
+  if (ATUAL.f.id === "F07" && !ATUAL.r && regs("F07").some(x => x.grupo === r.grupo && x.data === r.data)
+      && !confirm(`Já existe chuva registrada para ${r.grupo} em ${brData(r.data)}. Salvar outra leitura?`)) return;
+  const f = ATUAL.f;
+  salvarRegistro(f.id, r);
+  vibrar(40);
+  toast(`${f.nome} salva`);
+  if (proxima) {
+    const cs = colonias(), atual = cs.findIndex(c => c.colonia === r.colonia);
+    const seg = cs.slice(atual + 1).find(c => c.grupo === cs[atual].grupo);
+    if (seg) { abrirFicha(f.id, null, { colonia: seg.colonia }); return; }
+    toast("Última colônia do grupo");
+  }
+  fecharFicha(); renderHoje();
+}
+$("#f-salvar").addEventListener("click", () => salvarAtual(false));
+$("#f-proxima").addEventListener("click", () => salvarAtual(true));
+$("#f-excluir").addEventListener("click", () => {
+  if (!ATUAL || !ATUAL.r) return;
+  if (!confirm("Excluir este registro? Ele sai da planilha, mas continua na cópia de segurança.")) return;
+  excluirRegistro(ATUAL.f.id, ATUAL.r.id); toast("Registro excluído"); fecharFicha();
+});
+
+function recalcular() {
+  if (!ATUAL) return;
+  ATUAL.f.campos.filter(c => c.t === "calc").forEach(c => {
+    const { r } = coletar(); const v = c.calc(r);
+    const el = $("#c-" + c.k); if (el) el.textContent = v == null ? "—" : String(v).replace(".", ",");
+  });
+}
+
+/* ---------------- widgets ---------------- */
+let CONTS = [];
+function pararContadores() { CONTS.forEach(x => clearInterval(x)); CONTS = []; }
+function ligarWidgets(f) {
+  $$("#f [data-sn] button").forEach(b => b.addEventListener("click", () => {
+    const g = b.parentElement; const ja = b.getAttribute("aria-pressed") === "true";
+    g.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", "false"));
+    if (!ja) b.setAttribute("aria-pressed", "true");
+  }));
+  $$("#f [data-esc] button").forEach(b => b.addEventListener("click", () => {
+    b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", "false"));
+    b.setAttribute("aria-pressed", "true"); vibrar(15);
+  }));
+  $$("#f input, #f select").forEach(x => x.addEventListener("input", recalcular));
+  if (f.id === "F09") {
+    const cod = $("#c-codigo_amostra"), auto = () => { const c = $("#c-colonia").value, d = ($("#c-data").value || "").replace(/-/g, ""); return c && d ? `CR-${c}-MEL-${d}` : ""; };
+    let ultimo = auto();
+    if (!cod.value) cod.value = ultimo;
+    ["#c-colonia", "#c-data"].forEach(s => $(s).addEventListener("change", () => { if (!cod.value || cod.value === ultimo) { ultimo = auto(); cod.value = ultimo; } }));
+  }
+  $$("#f [data-p]").forEach(x => x.addEventListener("change", recalcular));
+  // contador de 5 minutos
+  $$("#f [data-cont]").forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.cont, box = $("#cont-" + k), inp = $("#c-" + k);
+    let tot = 0, fim = Date.now() + 300000; box.classList.add("on");
+    const rel = box.querySelector("[data-rel]"), tb = box.querySelector("[data-tot]");
+    const pinta = () => { tb.textContent = tot; inp.value = tot; };
+    const termina = (vib) => { clearInterval(t); box.classList.remove("on"); inp.value = tot; if (vib) { vibrar([300, 120, 300]); toast(`Contagem encerrada: ${tot} entradas`); } };
+    box.querySelector("[data-mais]").onclick = () => { tot++; pinta(); vibrar(10); };
+    box.querySelector("[data-menos]").onclick = () => { tot = Math.max(0, tot - 1); pinta(); };
+    box.querySelector("[data-parar]").onclick = () => { if (confirm("Encerrar antes dos 5 minutos? O valor fica marcado nas observações.")) { termina(false); const o = $("#c-observacoes"); if (o) o.value = (o.value + " contagem interrompida antes de 5 min").trim(); } };
+    const t = setInterval(() => { const s = Math.max(0, Math.round((fim - Date.now()) / 1000)); rel.textContent = `${p2(Math.floor(s / 60))}:${p2(s % 60)}`; if (s <= 0) termina(true); }, 250);
+    CONTS.push(t); pinta();
+  }));
+  // cronômetro
+  $$("#f [data-crono]").forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.crono, inp = $("#c-" + k), msg = b.closest(".fld").querySelector("[data-crono-msg]");
+    if (!b._ini) { b._ini = Date.now(); b.textContent = "Parar"; msg.textContent = "Cronometrando…";
+      b._t = setInterval(() => { inp.value = String(Math.round((Date.now() - b._ini) / 6000) / 10).replace(".", ","); }, 1000); CONTS.push(b._t); }
+    else { clearInterval(b._t); const m = Math.round((Date.now() - b._ini) / 6000) / 10; inp.value = String(m).replace(".", ","); b._ini = null; b.textContent = "Iniciar"; msg.textContent = `Registrado: ${String(m).replace(".", ",")} min`; }
+  }));
+  // GPS
+  $$("#f [data-gps]").forEach(b => b.addEventListener("click", () => {
+    $("#gps-msg").textContent = "Buscando posição…";
+    pedirGPS((lat, lon, prec, erro) => {
+      if (erro) { $("#gps-msg").textContent = erro; return; }
+      $("#c-latitude").value = lat.toFixed(6).replace(".", ","); $("#c-longitude").value = lon.toFixed(6).replace(".", ",");
+      $("#gps-msg").textContent = `Precisão de cerca de ${Math.round(prec)} m`;
+    });
+  }));
+  // fotos
+  f.campos.filter(c => c.t === "fotos").forEach(c => {
+    const inp = $("#cap-" + c.k);
+    inp.addEventListener("change", async () => {
+      const arq = inp.files && inp.files[0]; inp.value = "";
+      if (!arq) return;
+      try {
+        const dados = await reduzirFoto(arq);
+        const base = (($("#c-colonia") && $("#c-colonia").value) || ($("#c-kit") && $("#c-kit").value) || "SEM").replace(/[^A-Za-z0-9-]/g, "");
+        const d = ($("#c-data") && $("#c-data").value || hojeISO()).replace(/-/g, "");
+        let n = 1, nome; do { nome = `FOTO-${f.id.slice(0, 3)}-${base}-${d}-${CFG.disp}-${p2(n++)}.jpg`; } while (ATUAL.fotos.includes(nome) || await Fotos.pegar(nome));
+        await Fotos.por({ nome, dados, exportada: false });
+        ATUAL.fotos.push(nome); mostrarFotos(c.k); toast("Foto guardada");
+      } catch (e) { toast("Não foi possível ler a foto"); }
+    });
+  });
+}
+async function mostrarFotos(k) {
+  const box = $("#fotos-" + k); if (!box) return;
+  const itens = [];
+  for (const n of ATUAL.fotos) { const o = await Fotos.pegar(n); itens.push(`<figure><img src="${o ? o.dados : ""}" alt=""><figcaption>${esc(n.replace(/^FOTO-/, ""))}</figcaption><button type="button" data-tira="${esc(n)}" aria-label="Remover foto">×</button></figure>`); }
+  box.innerHTML = itens.join("");
+  box.querySelectorAll("[data-tira]").forEach(b => b.addEventListener("click", () => { ATUAL.fotos = ATUAL.fotos.filter(x => x !== b.dataset.tira); mostrarFotos(k); }));
+}
+function reduzirFoto(arq) {
+  return new Promise((ok, erro) => {
+    const url = URL.createObjectURL(arq), img = new Image();
+    img.onload = () => {
+      const m = 1280, e = Math.min(1, m / Math.max(img.width, img.height));
+      const cv = document.createElement("canvas"); cv.width = Math.round(img.width * e); cv.height = Math.round(img.height * e);
+      cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height); URL.revokeObjectURL(url);
+      ok(cv.toDataURL("image/jpeg", 0.72));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); erro(new Error("imagem")); };
+    img.src = url;
+  });
+}
+const GPS_CB = {};
+function pedirGPS(cb) {
+  if (APP && APP.localizacao) { const id = uid(); GPS_CB[id] = cb; APP.localizacao(id); return; }
+  if (!navigator.geolocation) { cb(0, 0, 0, "GPS indisponível neste aparelho"); return; }
+  navigator.geolocation.getCurrentPosition(p => cb(p.coords.latitude, p.coords.longitude, p.coords.accuracy),
+    e => cb(0, 0, 0, "Sem posição: " + (e.message || "permissão negada")), { enableHighAccuracy: true, timeout: 30000, maximumAge: 60000 });
+}
+
+/* ---------------- colônias e sorteio ---------------- */
+function renderColonias() {
+  const cs = colonias();
+  $("#grupos").innerHTML = grupos().map(g => {
+    const lista = cs.filter(c => c.grupo === g), c0 = lista[0] || {};
+    const sorteado = lista.some(c => c.tratamento);
+    return `<div class="grupo"><h3>${esc(g)} <span class="s">${esc([c0.especie, c0.ambiente, c0.meliponicultor].filter(Boolean).join(" · "))}</span></h3>
+      <div class="lista">${lista.map(c => `<button class="item" data-col="${esc(c.colonia)}"><span><span class="t">${esc(c.colonia)}</span><br><span class="s">${esc([c.meliponicultor, c.kit ? "kit " + c.kit : "sem kit", c.monitor ? "monitor: " + c.monitor : ""].filter(Boolean).join(" · "))}</span></span>${c.tratamento ? `<span class="pill ${c.tratamento === "ANTIGA" ? "warn" : "ok"}"><span class="dot"></span>${c.tratamento === "ANTIGA" ? "antiga (controle)" : "nova"}</span>` : `<span class="pill idle"><span class="dot"></span>sem sorteio</span>`}</button>`).join("")}</div>
+      <div class="rowend"><button class="btn ${sorteado ? "ghost sm" : ""}" type="button" data-sortear="${esc(g)}">${sorteado ? "Refazer sorteio" : "Sortear o controle de " + esc(g)}</button></div></div>`;
+  }).join("") || `<div class="empty"><b>Nenhuma colônia</b>Use “Nova colônia”.</div>`;
+  $$("#grupos [data-col]").forEach(b => b.addEventListener("click", () => editarColonia(colonia(b.dataset.col))));
+  $$("#grupos [data-sortear]").forEach(b => b.addEventListener("click", () => sorteio(b.dataset.sortear)));
+}
+function editarColonia(r) {
+  abrirAba("coletar"); abrirFicha("F01", r || null);
+}
+$("#c-nova").addEventListener("click", () => editarColonia(null));
+
+function modal(html) { $("#modal-c").innerHTML = html; $("#modal").classList.add("on"); }
+function fecharModal() { $("#modal").classList.remove("on"); }
+$("#modal").addEventListener("click", ev => { if (ev.target.id === "modal") fecharModal(); });
+
+function sorteio(g) {
+  const lista = colonias().filter(c => c.grupo === g);
+  const ja = lista.some(c => c.tratamento);
+  modal(`<h3 style="margin-bottom:8px">Sorteio do controle — ${esc(g)}</h3>
+    ${ja ? `<div class="note w" style="margin-bottom:10px"><b>Este grupo já foi sorteado.</b> Refazer só se o sorteio anterior foi feito por engano; os dois ficam registrados.</div>` : ""}
+    <p style="font-size:13px;color:var(--ink-2);margin-bottom:8px">Marque as colônias aptas (força semelhante, conferida na linha de base). Uma delas será sorteada para ficar com a caixa e a melgueira antigas.</p>
+    <div>${lista.map(c => `<label class="chk"><input type="checkbox" data-apta="${esc(c.colonia)}" checked><span><b>${esc(c.colonia)}</b> ${esc(c.meliponicultor || "")}</span></label>`).join("")}</div>
+    <div class="form" style="margin-top:10px"><div class="fld full"><label for="s-test">Testemunhas presentes</label><input id="s-test" placeholder="ex.: meliponicultor e monitor"></div></div>
+    <div class="sorteado" id="s-res" hidden></div>
+    <div class="rowend"><button class="btn ghost" type="button" id="s-fechar">Fechar</button><button class="btn" type="button" id="s-ir">Sortear</button></div>`);
+  $("#s-fechar").onclick = fecharModal;
+  $("#s-ir").onclick = () => {
+    const aptas = $$("[data-apta]").filter(x => x.checked).map(x => x.dataset.apta);
+    if (aptas.length < 2) { toast("Marque pelo menos duas colônias aptas"); return; }
+    if (!$("#s-test").value.trim() && !confirm("Sortear sem registrar testemunhas?")) return;
+    const a = new Uint32Array(1); let i;
+    do { crypto.getRandomValues(a); i = a[0] % 4294967296; } while (i >= Math.floor(4294967296 / aptas.length) * aptas.length);
+    const escolhida = aptas[i % aptas.length];
+    lista.forEach(c => { if (aptas.includes(c.colonia) || ja) { c.tratamento = c.colonia === escolhida ? "ANTIGA" : (aptas.includes(c.colonia) ? "NOVA" : c.tratamento); salvarRegistro("F01", c); } });
+    salvarRegistro("SORTEIO", { grupo: g, data: hojeISO(), hora: horaAgora(), aptas: aptas.join(" "), controle: escolhida, testemunhas: $("#s-test").value.trim(), observador: CFG.nome || "", refeito: ja ? "S" : "N" });
+    const res = $("#s-res"); res.hidden = false; res.textContent = "Controle: " + escolhida;
+    $("#s-ir").hidden = true; vibrar([200, 100, 200]); renderColonias();
+  };
+}
+
+/* ---------------- registros ---------------- */
+function renderRegistros() {
+  const sel = $("#r-ficha");
+  if (!sel.options.length) sel.innerHTML = `<option value="">Todas</option>` + FICHAS.map(f => `<option value="${f.id}">${f.id.slice(0, 3)} · ${esc(f.nome)}</option>`).join("");
+  const fil = $("#r-col").value.trim().toUpperCase();
+  const todos = [];
+  FICHAS.filter(f => !sel.value || f.id === sel.value).forEach(f => regs(f.id).forEach(r => {
+    if (fil && !String(r[f.chave] || "").toUpperCase().includes(fil) && !String(r.colonia || "").toUpperCase().includes(fil) && !String(r.grupo || "").toUpperCase().includes(fil)) return;
+    todos.push({ f, r });
+  }));
+  todos.sort((a, b) => String(b.r.data || b.r.registrado_em).localeCompare(String(a.r.data || a.r.registrado_em)));
+  $("#r-total").textContent = `${todos.length} registro(s)`;
+  $("#r-lista").innerHTML = todos.length ? `<div class="lista">${todos.slice(0, 300).map(o => linhaRegistro(o.f, o.r)).join("")}</div>` : `<div class="empty"><b>Nenhum registro</b>Ajuste os filtros ou use a aba Coletar.</div>`;
+  ligarLinhas("#r-lista");
+}
+$("#r-ficha").addEventListener("change", renderRegistros);
+$("#r-col").addEventListener("input", renderRegistros);
+
+/* ---------------- ZIP (sem compressão) e XLSX ---------------- */
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(b) { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function zip(arquivos) {   // [{nome, dados: Uint8Array}]
+  const enc = new TextEncoder(), partes = [], central = []; let pos = 0;
+  const d = new Date(), dt = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate(), tm = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+  arquivos.forEach(a => {
+    const nome = enc.encode(a.nome), crc = crc32(a.dados), n = a.dados.length;
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true);
+    h.setUint16(10, tm, true); h.setUint16(12, dt, true); h.setUint32(14, crc, true); h.setUint32(18, n, true); h.setUint32(22, n, true);
+    h.setUint16(26, nome.length, true); h.setUint16(28, 0, true);
+    partes.push(new Uint8Array(h.buffer), nome, a.dados);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true);
+    c.setUint16(12, tm, true); c.setUint16(14, dt, true); c.setUint32(16, crc, true); c.setUint32(20, n, true); c.setUint32(24, n, true);
+    c.setUint16(28, nome.length, true); c.setUint32(42, pos, true);
+    central.push(new Uint8Array(c.buffer), nome);
+    pos += 30 + nome.length + n;
+  });
+  const tamC = central.reduce((s, x) => s + x.length, 0);
+  const fim = new DataView(new ArrayBuffer(22));
+  fim.setUint32(0, 0x06054b50, true); fim.setUint16(8, arquivos.length, true); fim.setUint16(10, arquivos.length, true);
+  fim.setUint32(12, tamC, true); fim.setUint32(16, pos, true);
+  const tudo = partes.concat(central, [new Uint8Array(fim.buffer)]);
+  const out = new Uint8Array(tudo.reduce((s, x) => s + x.length, 0)); let o = 0;
+  tudo.forEach(x => { out.set(x, o); o += x.length; });
+  return out;
+}
+const xesc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "");
+function colLetra(i) { let s = ""; i++; while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; }
+function serialData(iso) { return (Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)) - Date.UTC(1899, 11, 30)) / 864e5; }
+function planilhaXML(cols, linhas, datas) {
+  let x = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetData>`;
+  const cel = (ri, ci, v, cab) => {
+    const ref = colLetra(ci) + ri;
+    if (v == null || v === "") return "";
+    if (cab) return `<c r="${ref}" t="inlineStr" s="1"><is><t>${xesc(v)}</t></is></c>`;
+    if (datas.has(cols[ci]) && /^\d{4}-\d{2}-\d{2}$/.test(v)) return `<c r="${ref}" s="2"><v>${serialData(v)}</v></c>`;
+    if (typeof v === "number" && isFinite(v)) return `<c r="${ref}"><v>${v}</v></c>`;
+    return `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${xesc(v)}</t></is></c>`;
+  };
+  x += `<row r="1">${cols.map((c, i) => cel(1, i, c, true)).join("")}</row>`;
+  linhas.forEach((l, j) => { x += `<row r="${j + 2}">${cols.map((c, i) => cel(j + 2, i, l[c], false)).join("")}</row>`; });
+  return x + `</sheetData></worksheet>`;
+}
+function xlsx(abas) {   // [{nome, cols, linhas, datas:Set}]
+  const enc = s => new TextEncoder().encode(s);
+  const ct = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${abas.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}</Types>`;
+  const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
+  const wb = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${abas.map((a, i) => `<sheet name="${xesc(a.nome)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join("")}</sheets></workbook>`;
+  const wbr = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${abas.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join("")}<Relationship Id="rId${abas.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+  const st = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="dd/mm/yyyy"/></numFmts><fonts count="2"><font><sz val="10"/><name val="Arial"/></font><font><b/><sz val="10"/><name val="Arial"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+  const arq = [{ nome: "[Content_Types].xml", dados: enc(ct) }, { nome: "_rels/.rels", dados: enc(rels) },
+    { nome: "xl/workbook.xml", dados: enc(wb) }, { nome: "xl/_rels/workbook.xml.rels", dados: enc(wbr) }, { nome: "xl/styles.xml", dados: enc(st) }];
+  abas.forEach((a, i) => arq.push({ nome: `xl/worksheets/sheet${i + 1}.xml`, dados: enc(planilhaXML(a.cols, a.linhas, a.datas)) }));
+  return zip(arq);
+}
+function montarPlanilha() {
+  const abas = FICHAS.map(f => {
+    const datas = new Set(f.campos.filter(c => c.t === "data").map(c => c.k));
+    const linhas = regs(f.id).map(r => { const o = Object.assign({}, r); if (o.safra != null && /^\d{4}$/.test(String(o.safra))) o.safra = Number(o.safra); return o; });
+    linhas.sort((a, b) => String(a[f.chave] || "").localeCompare(String(b[f.chave] || "")) || String(a.data || "").localeCompare(String(b.data || "")));
+    return { nome: f.aba, cols: colunas(f), linhas, datas };
+  });
+  abas.push({ nome: "Sorteios", cols: ["grupo", "data", "hora", "aptas", "controle", "testemunhas", "observador", "refeito", "id", "registrado_em", "editado_em", "dispositivo"], linhas: regs("SORTEIO"), datas: new Set(["data"]) });
+  abas.push({ nome: "Origem", cols: ["campo", "valor"], datas: new Set(), linhas: [
+    { campo: "aplicativo", valor: "Coleta de Campo " + VERSAO }, { campo: "observador", valor: CFG.nome || "" },
+    { campo: "dispositivo", valor: CFG.disp }, { campo: "gerado_em", valor: new Date().toISOString() },
+    { campo: "formato", valor: "Abas e colunas do Anexo 05a; colunas id, registrado_em, editado_em e dispositivo acrescentadas" }] });
+  return xlsx(abas);
+}
+
+/* ---------------- saída de arquivos ---------------- */
+function b64(u8) { let s = ""; const n = 0x8000; for (let i = 0; i < u8.length; i += n) s += String.fromCharCode.apply(null, u8.subarray(i, i + n)); return btoa(s); }
+function entregar(nome, mime, u8, titulo, modo) {
+  if (APP && APP.arquivoInicio) {
+    const s = b64(u8), passo = 512 * 1024;
+    APP.arquivoInicio(nome);
+    for (let i = 0; i < s.length; i += passo) APP.arquivoParte(s.slice(i, i + passo));
+    APP.arquivoFim(mime, titulo || nome, modo || "compartilhar");
+    return;
+  }
+  const url = URL.createObjectURL(new Blob([u8], { type: mime }));
+  const a = document.createElement("a"); a.href = url; a.download = nome; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 4000);
+}
+const carimbo = () => { const d = new Date(); return `${hojeISO(d).replace(/-/g, "")}-${p2(d.getHours())}${p2(d.getMinutes())}`; };
+const quemArq = () => (CFG.nome || "aparelho-" + CFG.disp).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+
+function enviarPlanilha(modo) {
+  if (!CFG.nome && !confirm("Seu nome ainda não foi informado. Continuar assim mesmo?")) return;
+  const u8 = montarPlanilha();
+  entregar(`coleta-${quemArq()}-${carimbo()}.xlsx`, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", u8, "Coleta de Campo — planilha", modo);
+  CFG.ultimoEnvio = new Date().toISOString(); Loja.salvarCfg(CFG); renderEnviar();
+}
+$("#e-xlsx").addEventListener("click", () => enviarPlanilha("compartilhar"));
+$("#e-salvar").addEventListener("click", () => enviarPlanilha("salvar"));
+async function exportarFotos(todas) {
+  const lista = (await Fotos.todas()).filter(o => todas || !o.exportada);
+  if (!lista.length) { toast(todas ? "Nenhuma foto guardada" : "Nenhuma foto nova"); return; }
+  const arq = lista.map(o => ({ nome: o.nome, dados: Uint8Array.from(atob(o.dados.split(",")[1]), c => c.charCodeAt(0)) }));
+  entregar(`fotos-${quemArq()}-${carimbo()}.zip`, "application/zip", zip(arq), "Coleta de Campo — fotos");
+  for (const o of lista) { o.exportada = true; await Fotos.por(o); }
+  toast(`${lista.length} foto(s) no arquivo`);
+}
+$("#e-fotos").addEventListener("click", () => exportarFotos(false));
+$("#e-fotos-todas").addEventListener("click", () => exportarFotos(true));
+
+$("#e-copia").addEventListener("click", () => {
+  const dados = { formato: "coleta-campo", versao: VERSAO, gerado_em: new Date().toISOString(), dispositivo: CFG.disp, observador: CFG.nome || "", colecoes: {} };
+  FICHAS.map(f => f.id).concat(["SORTEIO"]).forEach(c => { dados.colecoes[c] = Loja.ler(c); });
+  entregar(`copia-coleta-${quemArq()}-${carimbo()}.json`, "application/json", new TextEncoder().encode(JSON.stringify(dados)), "Coleta de Campo — cópia de segurança");
+});
+$("#e-importar").addEventListener("change", async ev => {
+  const arq = ev.target.files[0]; ev.target.value = "";
+  if (!arq) return;
+  try {
+    const d = JSON.parse(await arq.text());
+    if (d.formato !== "coleta-campo" || !d.colecoes) throw new Error("formato");
+    let novos = 0, atual = 0;
+    Object.keys(d.colecoes).forEach(c => {
+      if (!F[c] && c !== "SORTEIO") return;
+      const v = Loja.ler(c), idx = new Map(v.map((r, i) => [r.id, i]));
+      d.colecoes[c].forEach(r => {
+        if (!r || !r.id) return;
+        if (!idx.has(r.id)) { v.push(r); novos++; return; }
+        const ex = v[idx.get(r.id)], te = ex.editado_em || ex.registrado_em || "", tn = r.editado_em || r.registrado_em || "";
+        if (tn > te) { v[idx.get(r.id)] = r; atual++; }
+      });
+      if (c === "F01") {   // uma linha por colônia, juntada campo a campo: vale o valor preenchido mais recente
+        const t = r => r.editado_em || r.registrado_em || "";
+        const por = new Map();
+        v.filter(r => !r._excluido).sort((a, b) => t(a).localeCompare(t(b))).forEach(r => {
+          const o = por.get(r.colonia);
+          if (!o) { por.set(r.colonia, r); return; }
+          Object.keys(r).forEach(k => { if (r[k] != null && r[k] !== "" && !["id", "registrado_em", "dispositivo"].includes(k)) o[k] = r[k]; });
+          r._excluido = true; r.editado_em = new Date().toISOString();
+        });
+      }
+      Loja.gravar(c, v);
+    });
+    $("#e-imp-msg").textContent = `Importados: ${novos} novo(s), ${atual} atualizado(s). Nada foi apagado.`;
+    toast("Cópia importada"); renderEnviar();
+  } catch (e) { $("#e-imp-msg").textContent = "Arquivo não reconhecido: use uma cópia gerada por este aplicativo."; }
+});
+
+/* ---------------- configurações ---------------- */
+function aplicarTema() { if (CFG.tema) document.documentElement.setAttribute("data-theme", CFG.tema); else document.documentElement.removeAttribute("data-theme"); }
+function renderEnviar() {
+  $("#cf-nome").value = CFG.nome || ""; $("#cf-disp").value = CFG.disp; $("#cf-tema").value = CFG.tema || "";
+  const ue = CFG.ultimoEnvio;
+  $("#e-ultimo").textContent = ue ? `Último envio: ${brData(ue.slice(0, 10))} às ${ue.slice(11, 16)}` : "Nenhum envio feito";
+  $("#cf-contagem").innerHTML = FICHAS.map(f => `<tr><td>${f.id.slice(0, 3)} · ${esc(f.nome)}</td><td class="num">${regs(f.id).length}</td></tr>`).join("")
+    + `<tr><td>Sorteios</td><td class="num">${regs("SORTEIO").length}</td></tr>`;
+  let bytes = 0; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k.startsWith(K)) bytes += (localStorage.getItem(k) || "").length * 2; }
+  Fotos.todas().then(fs => { $("#cf-armaz").textContent = `Registros: ${(bytes / 1024).toFixed(0)} kB · Fotos guardadas: ${fs.length} (${fs.filter(o => !o.exportada).length} ainda não enviadas)`; }).catch(() => {});
+}
+$("#cf-salvar").addEventListener("click", () => {
+  CFG.nome = $("#cf-nome").value.trim(); CFG.tema = $("#cf-tema").value; Loja.salvarCfg(CFG);
+  aplicarTema(); relogio(); toast("Configuração salva"); renderEnviar();
+});
+$("#ir-config").addEventListener("click", ev => { ev.preventDefault(); abrirAba("enviar"); $("#config").scrollIntoView(); $("#cf-nome").focus(); });
+
+/* ---------------- ponte nativa ---------------- */
+window.Coleta = {
+  evento(e) {
+    if (e.tipo === "gps" && GPS_CB[e.id]) { const cb = GPS_CB[e.id]; delete GPS_CB[e.id]; e.erro ? cb(0, 0, 0, e.erro) : cb(e.lat, e.lon, e.prec); }
+    if (e.tipo === "aviso") toast(e.texto);
+  },
+  voltar() {   // botão voltar do Android: fecha janela, ficha ou volta à aba Hoje
+    if ($("#modal").classList.contains("on")) { fecharModal(); return true; }
+    if (ATUAL) { if (confirm("Sair da ficha sem salvar?")) fecharFicha(); return true; }
+    if ($("#pn-hoje").hidden) { abrirAba("hoje"); return true; }
+    return false;
+  },
+};
+
+/* ---------------- início ---------------- */
+(function () {
+  try { localStorage.setItem(K + "teste", "1"); localStorage.removeItem(K + "teste"); }
+  catch (e) { document.body.insertAdjacentHTML("afterbegin", `<div class="note w" style="margin:12px 0"><b>Sem armazenamento.</b> Este navegador não deixa salvar dados.</div>`); }
+  $("#versao").textContent = VERSAO;
+  semear(); aplicarTema(); relogio(); renderFichas();
+  let a = "hoje"; try { a = localStorage.getItem(K + "aba") || "hoje"; } catch (e) {}
+  abrirAba(ABAS.includes(a) ? a : "hoje");
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+})();
+</script>
+</body>
+</html>

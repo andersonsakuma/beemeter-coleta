@@ -1,0 +1,4 @@
+android/build/
+*.sqlite
+*.sqlite-journal
+banco/fotos/

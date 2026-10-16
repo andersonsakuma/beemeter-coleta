@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="br.org.ipe.coletacampo">
+
+    <!-- Sem INTERNET: o aplicativo funciona offline e os arquivos saem pelo menu Compartilhar -->
+    <!-- GPS para as coordenadas das colônias (F01) -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Aviso de fim da contagem de 5 minutos -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+
+    <application
+        android:label="Coleta de Campo"
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="true"
+        android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- Entrega a planilha, as fotos e a cópia para outros apps; recebe a foto da câmera -->
+        <provider
+            android:name=".Arquivos"
+            android:authorities="br.org.ipe.coletacampo.arquivos"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+    </application>
+</manifest>

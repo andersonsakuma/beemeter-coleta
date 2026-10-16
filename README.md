@@ -3,8 +3,16 @@
 Aplicativo de coleta de dados pelo celular do experimento de monitoramento das colônias de abelhas
 nativas em Cametá do Ramos, Barreirinha/AM (**IPÊ/FIS**, Projeto Amazônia Bee).
 
-Roda em <https://andersonsakuma.github.io/beemeter-coleta/> e como aplicativo Android: veja
-[android/README.md](android/README.md).
+Funciona em três formas, todas a partir do mesmo `index.html`:
+
+| Aparelho | Como entra | Instruções |
+|---|---|---|
+| Android | APK (QR na folha de acesso) | [android/README.md](android/README.md) |
+| iPhone / iPad | aplicativo web instalado pelo Safari (QR na folha de acesso) | [ios/README.md](ios/README.md) |
+| Computador | <https://andersonsakuma.github.io/beemeter-coleta/> | — |
+
+A folha com os dois QR de acesso e as etiquetas QR das colônias e dos kits estão em
+[etiquetas/](etiquetas/README.md).
 
 ## O que o aplicativo faz
 
@@ -13,6 +21,8 @@ Roda em <https://andersonsakuma.github.io/beemeter-coleta/> e como aplicativo An
   pesagem e atividade, chuva, manejo, extração e amostras, assistência técnica, índice de boas
   práticas e produção dos meliponicultores assistidos.
 - **Sorteio do controle** de cada grupo, com registro das colônias aptas e das testemunhas.
+- **Etiquetas QR** nas colônias e nos kits: **Hoje → Ler etiqueta QR** abre a ficha já preenchida com a
+  colônia ou o kit.
 - Contador de entradas de 5 minutos, cronômetro da extração, foto da melgueira, GPS da colônia e
   código automático das amostras.
 - Pendências do dia calculadas pelas frequências do plano (chuva, kits, ocupação, pesagem, envio).
@@ -37,12 +47,14 @@ feitos no celular e só saem dele quando o monitor envia a planilha.
 
 Settings → Pages → **Source: Deploy from a branch** → `main` / `/ (root)` → Save.
 
-Não há fluxo de Actions: a página é um arquivo único servido direto da raiz.
+Não há fluxo de Actions: a página é um arquivo único servido direto da raiz, com `manifest.webmanifest`,
+`sw.js` e os ícones ao lado para a instalação no iPhone.
 
 ## Sobre os dados
 
 Tudo fica no aparelho (`localStorage` para os registros; fotos em arquivos do aplicativo no Android
-ou no `IndexedDB` do navegador). Não há servidor e o aplicativo não usa internet. O que for
+ou no `IndexedDB` do navegador e do iPhone). Não há servidor: a internet só é usada para instalar e
+atualizar a página (`sw.js`), nunca para enviar registros. O que for
 registrado num celular não aparece em outro até que a cópia de segurança seja importada.
 
 ---
